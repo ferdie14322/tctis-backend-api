@@ -1,0 +1,339 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Police Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Police Admin</h2>
+      </div>
+      <div class="sidebar-menu">
+        <a href="{% url 'admin_dashboard' %}" class="active">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="{% url 'admin_tickets' %}">
+          <i class="fas fa-ticket-alt"></i>
+          <span>Tickets</span>
+        </a>
+        <a href="{% url 'admin_disputes' %}">
+          <i class="fas fa-gavel"></i>
+          <span>Disputes</span>
+        </a>
+        <a href="{% url 'admin_violations' %}">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Violations</span>
+        </a>
+        <a href="{% url 'admin_logout' %}">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="header">
+        <h1>Dashboard Overview</h1>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3>Total Users</h3>
+            <div class="card-icon users">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_users }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if user_change > 0 %}fa-arrow-up positive-change{% elif user_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if user_change > 0 %}positive-change{% elif user_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if user_change != 0 %}{{ abs_user_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Drivers</h3>
+            <div class="card-icon drivers">
+              <i class="fas fa-id-card"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_drivers }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if driver_change > 0 %}fa-arrow-up positive-change{% elif driver_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if driver_change > 0 %}positive-change{% elif driver_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if driver_change != 0 %}{{ abs_driver_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Police Officers</h3>
+            <div class="card-icon police">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_police }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if police_change > 0 %}fa-arrow-up positive-change{% elif police_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if police_change > 0 %}positive-change{% elif police_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if police_change != 0 %}{{ abs_police_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Total Tickets</h3>
+            <div class="card-icon tickets">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_tickets }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if ticket_change > 0 %}fa-arrow-up positive-change{% elif ticket_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if ticket_change > 0 %}positive-change{% elif ticket_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if ticket_change != 0 %}{{ abs_ticket_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Pending Tickets</h3>
+            <div class="card-icon pending">
+              <i class="fas fa-clock"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_pending_tickets }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if pending_change > 0 %}fa-arrow-up positive-change{% elif pending_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if pending_change > 0 %}positive-change{% elif pending_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if pending_change != 0 %}{{ abs_pending_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Resolved Tickets</h3>
+            <div class="card-icon resolved">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_resolved_tickets }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if resolved_change > 0 %}fa-arrow-up positive-change{% elif resolved_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if user_change > 0 %}positive-change{% elif user_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if user_change != 0 %}{{ abs_user_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Disputed Tickets</h3>
+            <div class="card-icon disputed">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+          </div>
+          <div class="card-value">{{ total_disputed_tickets }}</div>
+          <div class="card-footer">
+            <i
+              class="fas {% if disputed_change > 0 %}fa-arrow-up positive-change{% elif disputed_change < 0 %}fa-arrow-down negative-change{% else %}fa-equals neutral-change{% endif %}"
+            ></i>
+            <span
+              class="{% if disputed_change > 0 %}positive-change{% elif disputed_change < 0 %}negative-change{% else %}neutral-change{% endif %}"
+            >
+              {% if disputed_change != 0 %}{{ abs_dispute_change }}%{% else %}No
+              change{% endif %} from last month
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-card">
+          <h2>Violations Per Month</h2>
+          <div class="chart-container">
+            <canvas id="violationsChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h2>Tickets Status Distribution</h2>
+          <div class="chart-container">
+            <canvas id="ticketsChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="recent-activity">
+        <h2>Recent Activity</h2>
+        {% for activity in recent_activities %}
+        <div class="activity-item">
+          <div
+            class="activity-icon"
+            style="background-color: {{ activity.color }};"
+          >
+           <i class="fas fa-ticket-alt"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">{{ activity.title }}</div>
+            <div class="activity-time">{{ activity.time|timesince }} ago</div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="activity-item">
+          <div class="activity-content">
+            <div class="activity-title">No recent activity</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <script>
+      // Violations Chart
+      const violationsData = {{ violations_per_month|safe }};
+      const months = violationsData.map(item => item.month);
+      const counts = violationsData.map(item => item.count);
+
+      const violationsCtx = document.getElementById('violationsChart').getContext('2d');
+      const violationsChart = new Chart(violationsCtx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Number of Violations',
+            data: counts,
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: 'rgba(67, 97, 238, 1)',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                drawBorder: false,
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+
+      // Tickets Status Chart
+      const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
+      const ticketsChart = new Chart(ticketsCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pending', 'Resolved', 'Disputed'],
+          datasets: [{
+            data: [{{ total_pending_tickets }}, {{ total_resolved_tickets }}, {{ total_disputed_tickets }}],
+            backgroundColor: [
+              'rgba(255, 159, 64, 0.8)',
+              'rgba(76, 201, 240, 0.8)',
+              'rgba(247, 37, 133, 0.8)'
+            ],
+            borderColor: [
+              'rgba(255, 159, 64, 1)',
+              'rgba(76, 201, 240, 1)',
+              'rgba(247, 37, 133, 1)'
+            ],
+            borderWidth: 1,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const value = context.raw;
+                  const percentage = Math.round((value / total) * 100);
+                  label += value + ' (' + percentage + '%)';
+                  return label;
+                }
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    </script>
+  </body>
+</html>

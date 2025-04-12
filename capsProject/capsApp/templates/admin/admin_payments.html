@@ -1,0 +1,49 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Police Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Police Admin</h2>
+      </div>
+      <div class="sidebar-menu">
+        <a href="{% url 'admin_dashboard' %}" class="active">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="{% url 'admin_tickets' %}">
+          <i class="fas fa-ticket-alt"></i>
+          <span>Tickets</span>
+        </a>
+        <a href="{% url 'admin_disputes' %}">
+          <i class="fas fa-gavel"></i>
+          <span>Disputes</span>
+        </a>
+        <a href="{% url 'admin_violations' %}">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Violations</span>
+        </a>
+        <a href="{% url 'admin_logout' %}">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <h3>Payments</h3>
+      </div>
+    </div>
+  </body>
+</html>

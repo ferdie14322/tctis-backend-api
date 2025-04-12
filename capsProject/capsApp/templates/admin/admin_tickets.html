@@ -1,0 +1,176 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Police Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}" />
+        <script src="{% static 'js/admin_tickets.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div id="successModal" class="modal2">
+        <div class="modal-content2">
+            <span class="close-modal2">&times;</span>
+            <p>Ticket status updated successfully!</p>
+        </div>
+    </div>
+    <div id="signatureModal" class="modal2" style="display: none;">
+    <div class="modal-content2">
+        <span class="close-modal2" onclick="closeSignatureModal()">&times;</span>
+        <h3>Driver Signature</h3>
+        <img id="signatureImage" src="" alt="Signature" style="max-width: 100%; border: 1px solid #ccc;" />
+    </div>
+</div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Police Admin</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'admin_tickets' %}" class="active">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Tickets</span>
+            </a>
+            <a href="{% url 'admin_disputes' %}">
+                <i class="fas fa-gavel"></i>
+                <span>Disputes</span>
+            </a>
+            <a href="{% url 'admin_violations' %}">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Violations</span>
+            </a>
+            <a href="{% url 'admin_logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <h3>Tickets</h3>
+
+            <div class="search-filter-container">
+                <form method="GET" class="search-form">
+                    <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+                
+                <form method="GET" class="filter-form">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="">Filter Status</option>
+                        {% for choice in status_choices %}
+                            <option value="{{ choice.0 }}" {% if status_filter == choice.0 %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            
+			<table class="tickets-table">
+			<thead>
+				<tr>
+				<th>ID</th>
+				<th>License No</th>
+				<th>Plate Number</th>
+				<th>User</th>
+				<th>Issued By</th>
+				<th>Location</th>
+				<th>Status</th>
+				<th>Created At</th>
+				<th>Signature</th>
+				<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for ticket in tickets %}
+				<tr>
+				<td>{{ ticket.id }}</td>
+				<td>{{ ticket.license_no }}</td>
+				<td>{{ ticket.plate_number }}</td>
+				<td>{{ ticket.user_id.firstname }} {{ ticket.user_id.lastname }}</td>
+				<td>{{ ticket.issued_by.firstname }} {{ ticket.issued_by.lastname }}</td>
+
+				<td>{{ ticket.location }}</td>
+				<td>
+					<span class="status-badge status-{{ ticket.status|lower }}">
+					{{ ticket.get_status_display }}
+					</span>
+				</td>
+				<td>{{ ticket.created_at|date:"M. d, Y, h:i a" }}</td>
+				<td>
+				{% if ticket.driver_signature %}
+				    <button type="button" class="btn btn-secondary" onclick="showSignature('{{ ticket.driver_signature }}')">Show Signature</button>
+				{% else %}
+				    <button type="button" class="btn btn-secondary" disabled>No Signature</button>
+				{% endif %}
+				</td>
+				<td>
+					<form method="POST" class="action-buttons">
+					{% csrf_token %}
+					<input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+					<select name="status" class="status-select">
+						{% for choice in ticket.STATUS_CHOICES %}
+						<option value="{{ choice.0 }}" {% if ticket.status == choice.0 %}selected{% endif %}>
+							{{ choice.1 }}
+						</option>
+						{% endfor %}
+					</select>
+					<button type="submit" class="btn btn-primary">Update</button>
+					</form>
+
+
+				</tr>
+				{% empty %}
+				<tr>
+				<td colspan="8" style="text-align: center; padding: 20px;">
+					No tickets found
+				</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+			</table>
+
+            <div class="pagination">
+                <span class="step-links">
+					                    <span class="current">
+                        Page {{ tickets.number }} of {{ tickets.paginator.num_pages }}
+                    </span>
+                    
+                    {% if tickets.has_previous %}
+                        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo; first</a>
+                        <a href="?page={{ tickets.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">previous</a>
+                    {% endif %}
+                    
+
+                    {% if tickets.has_next %}
+                        <a href="?page={{ tickets.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">next</a>
+                        <a href="?page={{ tickets.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+function showSignature(dataUrl) {
+    const modal = document.getElementById("signatureModal");
+    const img = document.getElementById("signatureImage");
+    img.src = dataUrl;
+    modal.style.display = "block";
+}
+
+function closeSignatureModal() {
+    document.getElementById("signatureModal").style.display = "none";
+}
+</script>
+
